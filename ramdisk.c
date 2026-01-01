@@ -31,6 +31,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+ 
 /*
  * This implements a general-puspose RAM-disk.
  * See ramdisk.h for notes on the config types.
@@ -45,17 +46,30 @@
  * to the authors of the MFS implementation.
  */
 
+
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/buf.h>
-#include <sys/device.h>
 
-#include <vm/vm.h>
-#include <vm/vm_kern.h>
+#ifdef _AIX
+ #include <aix_io.h>
+ #include <aix_netbsd_shims.h>
+ #include <sys/errno.h>
+#else
+ #include <sys/device.h>
+ #include <vm/vm.h>
+ #include <vm/vm_kern.h>
+#endif
+
+
 /* Don't want all those other VM headers... */
-extern vm_offset_t	 kmem_alloc __P((vm_map_t, vm_size_t));
 
-#include <dev/ramdisk.h>
+//extern void some_func(int, int);
+
+//extern vm_offset_t	 kmem_alloc __P((vm_map_t, vm_size_t));
+//extern vm_offset_t	 kmem_alloc (vm_map_t, vm_size_t);
+
+#include <ramdisk.h>
 
 /*
  * By default, include the user-space functionality.
@@ -104,6 +118,14 @@ static void rd_attach(struct device *, struct device *self, void *);
 struct cfdriver rdcd = {
 	NULL, "rd", rd_match, rd_attach,
 	DV_DULL, sizeof(struct rd_softc), NULL, 0 };
+
+
+#ifdef _AIX
+void
+rdinit(dev_t devno) {
+    printf("rd: netbsd 1.1 ramdisk driver, devno 0x%x\n", devno);
+}
+#endif
 
 static int
 rd_match(parent, self, aux)

@@ -1,11 +1,11 @@
 
-all: Driver.o
+all: rd.o
 #ide_core.o: ide_core.c ide_queue.c ide_ata.c ide_atapi.c ide_misc.c
 #	$(CC) -c -o ide.o $<
 
 #objs=ide_core.o ide_queue.o ide_ata.o ide_atapi.o ide_misc.o
-objs=ramdisk.o
-Driver.o: $(objs)
+objs=ramdisk.o aix_netbsd_shims.o
+rd.o: $(objs)
 	ld -r -o $@ $(objs)
 
 
@@ -30,7 +30,7 @@ CC=cc -DUSE_OS_LONG_IO
 
 
 # Common options
-CFLAGS=-D_KERNEL -DKERNEL -Di386 -I/usr/include/sys 
+CFLAGS=-D_KERNEL -DKERNEL -Di386 -I/usr/include/sys -I.
 #-Iinclude -I. -DNISA=1 \
 #	-DLEDEBUG=1 -DBYTE_ORDER=1 -DBIG_ENDIAN=2
 
@@ -42,3 +42,13 @@ CFLAGS=-D_KERNEL -DKERNEL -Di386 -I/usr/include/sys
 #	echo Rebuilding the kernel...
 #	/usr/sys/newkernel -install
 
+
+
+install: rd.o
+	echo Archiving ramdisk support into the kernel library...
+	ar -rv /usr/sys/386/386lib.a rd.o
+	echo Installing le support in master, system and predefined files
+	sh ./instal
+	echo Rebuilding the kernel...
+	/usr/sys/newkernel -install
+	#/usr/sys/newkernel -d -install

@@ -108,4 +108,8 @@ int delayticks(int ticks); /* tick is based on kernel internal timing cycle */
 int bcopy(caddr_t from, caddr_t to, int count);
 int bzero(caddr_t buf, int count);
 
+
+
+caddr_t kmemalloc(int nbytes, u_int flags);
+
 #endif

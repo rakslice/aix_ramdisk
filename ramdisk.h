@@ -3,7 +3,11 @@
  * RAM-disk ioctl functions:
  */
 
+#ifdef _AIX
+#include <sys/ioctlcmd.h>
+#else
 #include <sys/ioccom.h>
+#endif
 
 struct rd_conf {
 	caddr_t rd_addr;
@@ -11,8 +15,20 @@ struct rd_conf {
 	int     rd_type;
 };
 
+#ifdef _AIX
+//#define	_IOR(x,y,t)	((x<<8)|(y))
+//#define	_IOW(x,y,t)	((x<<8)|(y))
+
+// I don't understand why I need to explicitly do these defs; they should expand to this as-is
+// FIXME: double check what the ioctl quirk was with the mcc's preprocessor
+#define RD_GETCONF	(('r'<<8)|(0))	/* get unit config */
+#define RD_SETCONF	(('r'<<8)|(1))	/* set unit config */
+
+
+#else
 #define RD_GETCONF	_IOR('r', 0, struct rd_conf)	/* get unit config */
 #define RD_SETCONF	_IOW('r', 1, struct rd_conf)	/* set unit config */
+#endif
 
 /*
  * There are three configurations supported for each unit,
@@ -56,4 +72,5 @@ struct rd_conf {
  */
 extern void rd_attach_hook __P((int unit, struct rd_conf *));
 extern void rd_open_hook   __P((int unit, struct rd_conf *));
-#endif
+
+#endif /* _KERNEL */
