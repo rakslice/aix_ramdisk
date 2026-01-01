@@ -1,0 +1,103 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "aix ps2 make",
+            "type": "shell",
+            "command": "ssh -i ~/.ssh/id_aixps2run rakslice@sandsys.local /home/rakslice/bin/aixps2run \"cd /nfs/u/rakslice/src/alt/aix_ramdisk; make clean all 2>&1\"",
+            "problemMatcher": [
+                {
+                    "owner": "mcc",
+                    "pattern": [
+                        {
+                            "regexp": "^(E|w) \"([^\"]*)\",L([0-9]+)\\/C([0-9]+): (.*)$",
+                            "severity": 1,
+                            "file": 2,
+                            "line": 3,
+                            "column": 4,
+                            "message": 5,
+                        },
+                        {
+                            "regexp": "^\\|(.*)$",
+                            "message": 1,
+                            "loop": true
+                        }
+                    ]
+                },
+                {
+                    "owner": "mcc",
+                    "severity": "error",
+                    "pattern": 
+                        {
+                            "regexp": "^E \"([^\"]*)\",L([0-9]+)\\/C([0-9]+): +([^ ]+ +[^ ]+.*)$",
+                            "file": 1,
+                            "line": 2,
+                            "column": 3,
+                            "message": 4,
+                        }
+                    
+                },
+                {
+                    "owner": "mcc",
+                    "severity": "warning",
+                    "pattern": 
+                        {
+                            "regexp": "^w \"([^\"]*)\",L([0-9]+)\\/C([0-9]+): +([^ ]+ +[^ ]+.*)$",
+                            "file": 1,
+                            "line": 2,
+                            "column": 3,
+                            "message": 4,
+                        }
+                    
+                },
+                {
+                    "owner": "mcc",
+                    "severity": "warning",
+                    "pattern": 
+                        {
+                            "regexp": "^w \"([^\"]*)\",L([0-9]+): +([^ ]+ [^ ]+.*)$",
+                            "file": 1,
+                            "line": 2,
+                            "message": 3,
+                        }
+                    
+                },
+
+                {
+                    "owner": "mcc",
+                    "severity": "warning",
+                    "pattern": 
+                        {
+                            "regexp": "^\"([^\"]*)\", line ([0-9]+): warning: +([^ ]+ [^ ]+.*)$",
+                            "file": 1,
+                            "line": 2,
+                            "message": 3,
+                        }
+                    
+                },
+
+                {
+                    "owner": "mcc",
+                    "severity": "error",
+                    "pattern": 
+                        {
+                            "regexp": "^\"([^\"]*)\", line ([0-9]+): +([^ ]+ [^ ]+.*)$",
+                            "file": 1,
+                            "line": 2,
+                            "message": 3,
+                        }
+                    
+                },
+
+
+
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
