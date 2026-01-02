@@ -155,6 +155,7 @@ void
 rdinit(dev_t devno) {
     printf("rd: netbsd 1.1 ramdisk driver, major %d minor %d\n", major(devno), minor(devno));
     rdcd.cd_devs = (void **)kmem_alloc(kernel_map, sizeof(void *) * NUM_POSSIBLE_RD);
+    rdcd.cd_ndevs = NUM_POSSIBLE_RD;
 
     for (int i = 0 ; i < NUM_POSSIBLE_RD; i++) {
         rdcd.cd_devs[i] = RD_SOFTC_HC(i);
