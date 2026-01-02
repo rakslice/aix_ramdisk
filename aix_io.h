@@ -22,7 +22,7 @@ unsigned short ioin (int port);
 
 /* Return an 8-bit byte from the specified  */
 /* int? */ 
-unsigned char ioinb (int port);
+//unsigned char ioinb (int port); // duplicates sys/i386/ppa.h
 
 /* Output a 16-bit word to the specified I/O port */
 /* int? */ 
@@ -30,7 +30,7 @@ void ioout (int port, unsigned short val);
 
 /* Output an 8-bit byte to the specified I/O port */
 /* int? */ 
-void iooutb (int port, unsigned char val);
+//void iooutb (int port, unsigned char val); // duplicates sys/i386/ppa.h
 
 /* 2. Memory-mapped I/O */
 

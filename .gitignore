@@ -1,1 +1,4 @@
 /*.o
+/*.s
+/*.img
+/initrd.save_o

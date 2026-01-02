@@ -5,6 +5,7 @@
 
 #ifdef _AIX
 #include <sys/ioctlcmd.h>
+#include "aix_netbsd_shims.h"
 #else
 #include <sys/ioccom.h>
 #endif
