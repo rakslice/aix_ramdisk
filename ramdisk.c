@@ -93,7 +93,7 @@
  * XXX -  This is just for a sanity check.  Only
  * applies to kernel-space RAM disk allocations.
  */
-#define RD_KMEM_MAX_SIZE	0x100000	/* 1MB */
+#define RD_KMEM_MAX_SIZE	0x600000	/* 6MB */
 
 /* autoconfig stuff... */
 
