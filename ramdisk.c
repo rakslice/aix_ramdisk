@@ -162,7 +162,7 @@ rdinit(dev_t devno) {
         rd_attach(NULL, (struct device *)RD_SOFTC_HC(i), NULL);
 
         /* See example at AIX PS/2 and System/370 Technical Reference Mar 1991 p. C.4.1.1 - 1 */
-        DEV_INSTALL(major(devno), rdanotherinit, /*reset*/ nulldev, rdopen, rdclose, /*intr*/ nulldev, ISNOTATTY);
+        DEV_INSTALL(major(devno), rdanotherinit, /*reset*/ nulldev, &rdopen, rdclose, /*intr*/ nulldev, ISNOTATTY | DV_AUTOCONF);
         BDEV_INSTALL(major(devno), (int(*)())rdstrategy, rddump, &rdbuf[i]);
         CDEV_INSTALL(major(devno), rdread, rdwrite, rdioctl, /*select*/ nulldev, notty);
 
