@@ -39,17 +39,34 @@
 
 #include <fcntl.h>
 #include <stdio.h>
-#include <sys/mman.h>
 #include <sys/param.h>
 
+#ifdef _AIX
+
+#include "ramdisk.h"
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+#else
+
+#include <sys/mman.h>
 #include <dev/ramdisk.h>
+
+#endif
 
 main(argc, argv)
 	int argc;
 	char **argv;
 {
 	struct rd_conf rd;
-	int nblks, fd, error;
+	int nblks, fd;
+
+#ifndef _AIX
+	int error;
+#endif
 
 	if (argc <= 2) {
 		fprintf(stderr, "usage: rdconfig <device> <%d-byte-blocks>\n",
@@ -69,7 +86,18 @@ main(argc, argv)
 		perror(argv[1]);
 		exit(1);
 	}
-
+#ifdef _AIX
+	int shmid = shmget(IPC_PRIVATE, rd.rd_size, S_IRUSR | S_IWUSR);
+	if (shmid == -1) {
+		perror("shmget");
+		exit(1);
+	}
+	rd.rd_addr = (caddr_t)shmat(shmid, 0, 0);
+	if (rd.rd_addr == (caddr_t)-1) {
+		perror("shmat");
+		exit(1);
+	}
+#else
 	rd.rd_addr = mmap(NULL, rd.rd_size,
 				PROT_READ | PROT_WRITE,
 				MAP_ANON | MAP_PRIVATE,
@@ -78,6 +106,7 @@ main(argc, argv)
 		perror("mmap");
 		exit(1);
 	}
+#endif
 
 	/* Become server! */
 	rd.rd_type = RD_UMEM_SERVER;
