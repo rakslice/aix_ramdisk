@@ -395,8 +395,8 @@ int
 rdioctl(dev, cmd, data, flag, proc)
 	dev_t	dev;
 	u_long	cmd;
-	int		flag;
 	caddr_t	data;
+	int		flag;
 	struct proc	*proc;
 {
 	int md, unit;
