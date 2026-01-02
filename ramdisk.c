@@ -53,7 +53,6 @@
 
 #ifdef _AIX
  #include <aix_io.h>
- #include <aix_netbsd_shims.h>
  #include <sys/errno.h>
 #else
  #include <sys/device.h>
@@ -69,7 +68,7 @@
 //extern vm_offset_t	 kmem_alloc __P((vm_map_t, vm_size_t));
 //extern vm_offset_t	 kmem_alloc (vm_map_t, vm_size_t);
 
-#include <ramdisk.h>
+#include "ramdisk.h"
 
 /*
  * By default, include the user-space functionality.
@@ -121,9 +120,53 @@ struct cfdriver rdcd = {
 
 
 #ifdef _AIX
+
+#define NUM_POSSIBLE_RD 1
+
+struct rd_softc hardcoded_rd_softc[NUM_POSSIBLE_RD];
+
+#define RD_SOFTC_HC(unit) (&hardcoded_rd_softc[(unit)])
+
+#include <sys/conf.h>
+#include <sys/i386/ppa.h>
+
+struct iobuf rdbuf;
+
+int rdanotherinit() {
+    printf("rd: this is in rdanotherinit(), the inner rd init hooked up with DEV_INSTALL");
+    return 0;
+}
+
+#include <sys/uio.h>
+
+
+// forward declare the routines for *_INSTALL
+int rdopen(dev_t dev, int flag, int fmt, struct proc *proc);
+int rdclose(dev_t dev, int flag, int fmt, struct proc *proc);
+void rdstrategy(struct buf *bp);
+int rddump(dev_t dev, daddr_t blkno, caddr_t va, size_t size);
+int rdread(dev_t dev, struct uio *uio);
+int rdwrite(dev_t dev, struct uio *uio);
+int rdioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *proc);
+
+
+
 void
 rdinit(dev_t devno) {
-    printf("rd: netbsd 1.1 ramdisk driver, devno 0x%x\n", devno);
+    printf("rd: netbsd 1.1 ramdisk driver, major %d minor %d\n", major(devno), minor(devno));
+    rdcd.cd_devs = (void **)kmem_alloc(kernel_map, sizeof(void *) * NUM_POSSIBLE_RD);
+
+    for (int i = 0 ; i < NUM_POSSIBLE_RD; i++) {
+        rdcd.cd_devs[i] = RD_SOFTC_HC(i);
+
+        rd_attach(NULL, (struct device *)RD_SOFTC_HC(i), NULL);
+
+        /* See example at AIX PS/2 and System/370 Technical Reference Mar 1991 p. C.4.1.1 - 1 */
+        DEV_INSTALL(major(devno), rdanotherinit, /*reset*/ nulldev, rdopen, rdclose, /*intr*/ nulldev, ISNOTATTY);
+        BDEV_INSTALL(major(devno), (int(*)())rdstrategy, rddump, &rdbuf);
+        CDEV_INSTALL(major(devno), rdread, rdwrite, rdioctl, /*select*/ nulldev, notty);
+
+    }
 }
 #endif
 

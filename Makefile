@@ -1,10 +1,7 @@
 
 all: rd.o
-#ide_core.o: ide_core.c ide_queue.c ide_ata.c ide_atapi.c ide_misc.c
-#	$(CC) -c -o ide.o $<
 
-#objs=ide_core.o ide_queue.o ide_ata.o ide_atapi.o ide_misc.o
-objs=ramdisk.o aix_netbsd_shims.o
+objs=ramdisk.o aix_netbsd_shims.o aix_ramdisk_config.o initrd.o
 rd.o: $(objs)
 	ld -r -o $@ $(objs)
 
@@ -21,34 +18,29 @@ CC=cc -DUSE_OS_LONG_IO
 # TODO: sort out the issues with optimized builds, then add
 #  -O2
 
-#cc -I. -D_KERNEL -DSYSV -DSVR40 -DAT386 -DVPIX -DWEITEK -DMERGE386 -DBLTCONS -DEVGA -c ide_core.c
-# 12 cc -I. -D_KERNEL -DSYSV -DSVR40 -DAT386 -DVPIX -DWEITEK -DMERGE386 -DBLTCONS -DEVGA -c ide_queue.c
-# 13 cc -I. -D_KERNEL -DSYSV -DSVR40 -DAT386 -DVPIX -DWEITEK -DMERGE386 -DBLTCONS -DEVGA -c ide_ata.c
-# 14 cc -I. -D_KERNEL -DSYSV -DSVR40 -DAT386 -DVPIX -DWEITEK -DMERGE386 -DBLTCONS -DEVGA -c ide_atapi.c
-# 15 cc -I. -D_KERNEL -DSYSV -DSVR40 -DAT386 -DVPIX -DWEITEK -DMERGE386 -DBLTCONS -DEVGA -c ide_misc.c
-# 16 ld -r -o Driver.o ide_core.o ide_queue.o ide_ata.o ide_atapi.o ide_misc.o
-
-
 # Common options
-CFLAGS=-D_KERNEL -DKERNEL -Di386 -I/usr/include/sys -I.
-#-Iinclude -I. -DNISA=1 \
-#	-DLEDEBUG=1 -DBYTE_ORDER=1 -DBIG_ENDIAN=2
-
-#install: if_le.o
-#	echo Archiving AMD leaix support into the kernel library...
-#	ar -rv /usr/sys/386/386lib.a $(bin)if_le.o
-#	echo Installing le support in master, system and predefined files
-#	sh ./instal
-#	echo Rebuilding the kernel...
-#	/usr/sys/newkernel -install
-
-
+CFLAGS=-D_KERNEL -DKERNEL -Di386 -I/usr/include/sys -I. -DRAMDISK_HOOKS=1
 
 install: rd.o
 	echo Archiving ramdisk support into the kernel library...
 	ar -rv /usr/sys/386/386lib.a rd.o
-	echo Installing le support in master, system and predefined files
+	echo Installing rd support in master, system and predefined files
 	sh ./instal
 	echo Rebuilding the kernel...
+	#/usr/sys/newkernel -d -install  # Link with all output for when things are starting to fail
 	/usr/sys/newkernel -install
-	#/usr/sys/newkernel -d -install
+
+
+SET_ULIMIT=ulimit -s 200000 >/dev/null; ulimit -b 200000; ulimit -f 2000000; [ `ulimit -s` -eq 200000 ]; [ `ulimit -b` -eq 200000 ]; [ `ulimit -f` -eq 2000000 ];
+
+initrd.o: initrd.s
+	$(SET_ULIMIT) as -o initrd.o initrd.s
+
+initrd.s: initrd.img
+	$(SET_ULIMIT) /u/root/bin/bash ./bin2s initrd.img > /tmp/initrd.s
+	cp /tmp/initrd.s initrd.s
+
+# stuff for creating the ramdisk image initrd.o on the linux side where it's faster:
+#initrd.o: initrd.s
+#	/usr/bin/i686-w64-mingw32-as -o initrd.o initrd.s  # from debian mingw32-binutils
+#	cp initrd.o initrd.save_o
