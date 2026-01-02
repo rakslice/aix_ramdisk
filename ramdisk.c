@@ -121,7 +121,7 @@ struct cfdriver rdcd = {
 
 #ifdef _AIX
 
-#define NUM_POSSIBLE_RD 1
+#define NUM_POSSIBLE_RD 4
 
 struct rd_softc hardcoded_rd_softc[NUM_POSSIBLE_RD];
 
