@@ -69,25 +69,10 @@ echo Backing up /etc/system to /etc/system.orig
 /bin/cp $SYSTEM  /etc/system.orig 2> /dev/null
 echo Patching /etc/system...
 echo
-#if [ `grep -c '^pg:' /etc/system` != "0" ]
-#then
-#	echo "Removing Ungerman-Bass ethernet card from /etc/system"
-#fi
-#awk '
-#BEGIN {inpg = 0}
-#/^.*:/ {if ($1 == "pg:") inpg = 1}
-#/^[ 	]*$/ {inpg = 0}
-#inpg == 1 {print "*",$0}
-#inpg == 0 {print $0}
-#' $SYSTEM 
-
-#/ipc43/d
-#/^sysparms:/a\
-#	ipc43 = 1
-
 
 cat $SYSTEM | /bin/sed -n '
 /^rd0/,/^[  ]*$/d
+/^rrd0/,/^[  ]*$/d
 p' > /tmp/system.tmp 2> /dev/null
 /bin/cat /tmp/system.tmp - > $SYSTEM<<!
 
