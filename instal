@@ -94,6 +94,24 @@ rd0:
 	owner = root
 	nospecial = false
 
+rrd0:
+* Ramdisk
+	name = rdisk
+	driver = rd
+	minor = c0
+	dtype = disk
+	noddi = true
+	noduplicate = false
+* Ramdisk
+	pflag = false
+	slot = ---
+* IBM PS/2 Fixed Disk
+	noshow = false
+	dname = rd0
+	modes = rw-rw-rw-
+	owner = root
+	nospecial = false
+
 !
 
 /bin/rm -rf /tmp/master.tmp /tmp/system.tmp
