@@ -2,3 +2,5 @@
 /*.s
 /*.img
 /initrd.save_o
+
+/rdconfig/rdconfig
