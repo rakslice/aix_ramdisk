@@ -150,6 +150,14 @@ int rdwrite(dev_t dev, struct uio *uio);
 int rdioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *proc);
 
 
+// the semantics of ddioctl are a little different here
+void wrapped_rdioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *proc) {
+	int ret = rdioctl(dev, cmd, data, flag, proc);
+	if (ret) {
+		u.u_error = ret;
+	}
+}
+
 
 void
 rdinit(dev_t devno) {
@@ -167,7 +175,7 @@ rdinit(dev_t devno) {
         DEV_INSTALL(major(devno), rdanotherinit, /*reset*/ nulldev, &rdopen, rdclose, /*intr*/ nulldev, ISNOTATTY | DV_AUTOCONF);
         rdbuf[i].ib_dev = devno;
         BDEV_INSTALL(major(devno), (int(*)())rdstrategy, rddump, &rdbuf[i]);
-        CDEV_INSTALL(major(devno), rdread, rdwrite, rdioctl, /*select*/ nulldev, notty);
+        CDEV_INSTALL(major(devno), rdread, rdwrite, (int(*)())wrapped_rdioctl, /*select*/ nulldev, notty);
 
     }
 }
