@@ -159,6 +159,7 @@ rdinit(dev_t devno) {
 
     for (int i = 0 ; i < NUM_POSSIBLE_RD; i++) {
         rdcd.cd_devs[i] = RD_SOFTC_HC(i);
+        RD_SOFTC_HC(i)->sc_dev.dv_unit = i;
 
         rd_attach(NULL, (struct device *)RD_SOFTC_HC(i), NULL);
 
