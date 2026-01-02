@@ -62,30 +62,46 @@ main(argc, argv)
 	char **argv;
 {
 	struct rd_conf rd;
-	int nblks, fd;
+	int nblks, fd, is_set;
 
 #ifndef _AIX
 	int error;
 #endif
 
-	if (argc <= 2) {
-		fprintf(stderr, "usage: rdconfig <device> <%d-byte-blocks>\n",
+	if (argc <= 1) {
+		fprintf(stderr, "usage: rdconfig <device> [<%d-byte-blocks>]\n",
 				DEV_BSIZE);
 		exit(1);
 	}
 
-	nblks = atoi(argv[2]);
-	if (nblks <= 0) {
-		fprintf(stderr, "invalid number of blocks\n");
-		exit(1);
+	if (argc > 2) {
+		nblks = atoi(argv[2]);
+		if (nblks <= 0) {
+			fprintf(stderr, "invalid number of blocks\n");
+			exit(1);
+		}
+		is_set = 1;
+		rd.rd_size = nblks << DEV_BSHIFT;
+	} else {
+		is_set = 0;
 	}
-	rd.rd_size = nblks << DEV_BSHIFT;
 
 	fd = open(argv[1], O_RDWR, 0);
 	if (fd < 0) {
 		perror(argv[1]);
 		exit(1);
 	}
+
+	if (!is_set) {
+		// we're just showing the current settings
+		if (ioctl(fd, RD_GETCONF, &rd)) {
+			perror("ioctl");
+			exit(1);
+		}
+		printf("%d\n", rd.rd_size);
+		exit(0);
+	}
+
 #ifdef _AIX
 	int shmid = shmget(IPC_PRIVATE, rd.rd_size, S_IRUSR | S_IWUSR);
 	if (shmid == -1) {
