@@ -58,8 +58,6 @@
     #include <sys/user.h>
     #include <sys/vmparam.h>
 
-    #define VM_MAXUSER_ADDRESS (USRSTACK)
-
     void biodone (struct buf *bp);
 
 

@@ -482,9 +482,11 @@ rd_ioctl_server(sc, urd, proc)
 	/* Sanity check addr, size. */
 	end = (vm_offset_t) (urd->rd_addr + urd->rd_size);
 
+#ifndef _AIX
 	if ((end >= VM_MAXUSER_ADDRESS) ||
 		(end < ((vm_offset_t) urd->rd_addr)) )
 		return EINVAL;
+#endif
 
 	/* This unit is now configured. */
 	sc->sc_addr = urd->rd_addr; 	/* user space */
