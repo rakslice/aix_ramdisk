@@ -54,6 +54,8 @@
 #ifdef _AIX
  #include <aix_io.h>
  #include <sys/errno.h>
+ #include <sys/devinfo.h>
+ #include <sys/ioctl.h>
 #else
  #include <sys/device.h>
  #include <vm/vm.h>
@@ -427,6 +429,33 @@ rdioctl(dev, cmd, data, flag, proc)
 #if RAMDISK_SERVER
 		case RD_UMEM_SERVER:
 			return rd_ioctl_server(sc, urd, proc);
+#endif
+#ifdef _AIX
+		case IOCTYPE:
+				*((char *)data) = DD_DISK;
+				return 0;
+		case IOCINFO: /* get device info */ {
+				md = minor(dev);
+				unit = RD_UNIT(md);
+				sc = rdcd.cd_devs[unit];
+
+				if (RD_IS_CTRL(md))
+					return ENOTTY;
+
+				if (sc->sc_type == RD_UNCONFIGURED)
+					return ENODEV; // FIXME is this correct for a non-existent device
+
+				struct devinfo * info = (struct devinfo *)data;
+				info->devtype = DD_DISK;
+				info->flags = DF_FIXED | DF_RAND | DF_FAST | DF_SCSI; /* we'll say scsi bc e.g. hd does it
+																	and also the one something would expect to be the most logical address oriented */
+				info->un.dk.bytpsec = 512;
+				// let's give std values for the rest; these are not going to add up, hopefully the caller can figure that out
+				info->un.dk.trkpcyl = 16; // aka heads
+				info->un.dk.secptrk = 63;
+				info->un.dk.numblks = sc->sc_size >> DEV_BSHIFT;
+				return 0;
+			}
 #endif
 		default:
 			break;
