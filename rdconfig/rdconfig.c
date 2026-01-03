@@ -57,6 +57,23 @@
 
 #endif
 
+#define USE_SERVER 0
+
+const char * typename(int type) {
+	switch (type) {
+		case 0:
+			return "RD_UNCONFIGURED";
+		case 1:
+			return "RD_KMEM_FIXED";
+		case 2:
+			return "RD_KMEM_ALLOCATED";
+		case 3:
+			return "RD_UMEM_SERVER";
+		default:
+			return "UNKNOWN";
+	}
+}
+
 main(argc, argv)
 	int argc;
 	char **argv;
@@ -98,9 +115,11 @@ main(argc, argv)
 			perror("ioctl");
 			exit(1);
 		}
-		printf("%d\n", rd.rd_size);
+		printf("type %d (%s) addr 0x%x size %d\n", rd.rd_type, typename(rd.rd_type), rd.rd_addr, rd.rd_size);
 		exit(0);
 	}
+
+#if USE_SERVER
 
 #ifdef _AIX
 	int shmid = shmget(IPC_PRIVATE, rd.rd_size, S_IRUSR | S_IWUSR);
@@ -111,6 +130,8 @@ main(argc, argv)
 	rd.rd_addr = (caddr_t)shmat(shmid, 0, 0);
 	if (rd.rd_addr == (caddr_t)-1) {
 		perror("shmat");
+		if (shmctl(shmid, IPC_RMID, NULL))
+			perror("shmctl");
 		exit(1);
 	}
 #else
@@ -128,8 +149,28 @@ main(argc, argv)
 	rd.rd_type = RD_UMEM_SERVER;
 	if (ioctl(fd, RD_SETCONF, &rd)) {
 		perror("ioctl");
+#ifdef _AIX
+		if (shmdt(rd.rd_addr)) {
+			perror("shmdt");
+		} else {
+			if (shmctl(shmid, IPC_RMID, NULL))
+				perror("shmctl");
+		}
+#endif
 		exit(1);
 	}
+
+#else /* just use kernel memory */
+
+	rd.rd_type = RD_KMEM_ALLOCATED;
+	if (ioctl(fd, RD_SETCONF, &rd)) {
+		perror("ioctl");
+		exit(1);
+	}
+
+#endif
+
+
 
 	exit(0);
 }
