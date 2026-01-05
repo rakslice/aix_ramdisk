@@ -86,8 +86,8 @@ rd0:
 	noduplicate = false
 * Ramdisk
 	pflag = false
+* Ramdisk 0 block device
 	slot = ---
-* IBM PS/2 Fixed Disk
 	noshow = false
 	dname = rd0
 	modes = rw-rw-rw-
@@ -104,8 +104,8 @@ rrd0:
 	noduplicate = false
 * Ramdisk
 	pflag = false
+* Ramdisk 0 character device
 	slot = ---
-* IBM PS/2 Fixed Disk
 	noshow = false
 	dname = rd0
 	modes = rw-rw-rw-
