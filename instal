@@ -6,7 +6,6 @@
 TRUE=1
 MASTER=/etc/master
 SYSTEM=/etc/system
-MAJNUM=45
 DEVICENAME=rd
 
 if_failed() {
