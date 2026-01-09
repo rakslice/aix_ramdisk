@@ -3,5 +3,6 @@
 /*.img
 /initrd.save_o
 /bin2s
+/swap_25_zeroed
 
 /rdconfig/rdconfig

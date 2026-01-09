@@ -50,5 +50,8 @@ initrd.o: initrd.s
 root_install_net.img: ../root_net_disk/root_install_net.img
 	cp ../root_net_disk/root_install_net.img root_install_net.img
 
+swap_25_zeroed: swap_25_zeroed.Z
+	uncompress -c swap_25_zeroed.Z > swap_25_zeroed
+
 root_install_net_with_swap.img: root_install_net.img swap_25_zeroed
 	cat root_install_net.img swap_25_zeroed > root_install_net_with_swap.img
