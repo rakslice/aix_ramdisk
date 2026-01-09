@@ -30,17 +30,25 @@ install: rd.o
 	#/usr/sys/newkernel -d -install  # Link with all output for when things are starting to fail
 	/usr/sys/newkernel -install
 
+small_lim=300000
+big_lim=5000000
+SET_ULIMIT=ulimit -s $(small_lim) >/dev/null; ulimit -b $(small_lim); ulimit -f $(big_lim); [ `ulimit -s` -eq $(small_lim) ]; [ `ulimit -b` -eq $(small_lim) ]; [ `ulimit -f` -eq $(big_lim) ];
 
-SET_ULIMIT=ulimit -s 200000 >/dev/null; ulimit -b 200000; ulimit -f 2000000; [ `ulimit -s` -eq 200000 ]; [ `ulimit -b` -eq 200000 ]; [ `ulimit -f` -eq 2000000 ];
 
-initrd.o: initrd.s
-	$(SET_ULIMIT) as -o initrd.o initrd.s
-
-initrd.s: initrd.img
-	$(SET_ULIMIT) /u/root/bin/bash ./bin2s initrd.img > /tmp/initrd.s
-	cp /tmp/initrd.s initrd.s
+initrd.s: initrd.img bin2s
+	#$(SET_ULIMIT) /u/root/bin/bash ./bin2s initrd.img > /tmp/initrd.s
+	#cp /tmp/initrd.s initrd.s
+	./bin2s initrd.img > initrd.s
 
 # stuff for creating the ramdisk image initrd.o on the linux side where it's faster:
-#initrd.o: initrd.s
-#	/usr/bin/i686-w64-mingw32-as -o initrd.o initrd.s  # from debian mingw32-binutils
-#	cp initrd.o initrd.save_o
+initrd.o: initrd.s
+	# mingw as from debian mingw32-binutils
+	uname
+	if [ "`uname`" = "Linux" ]; then /usr/bin/i686-w64-mingw32-as -o initrd.o initrd.s && cp initrd.o initrd.save_o ; else $(SET_ULIMIT) as -o initrd.o initrd.s ; fi
+
+
+root_install_net.img: ../root_net_disk/root_install_net.img
+	cp ../root_net_disk/root_install_net.img root_install_net.img
+
+root_install_net_with_swap.img: root_install_net.img swap_25_zeroed
+	cat root_install_net.img swap_25_zeroed > root_install_net_with_swap.img
