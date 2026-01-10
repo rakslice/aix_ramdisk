@@ -34,8 +34,10 @@ small_lim=300000
 big_lim=5000000
 SET_ULIMIT=ulimit -s $(small_lim) >/dev/null; ulimit -b $(small_lim); ulimit -f $(big_lim); [ `ulimit -s` -eq $(small_lim) ]; [ `ulimit -b` -eq $(small_lim) ]; [ `ulimit -f` -eq $(big_lim) ];
 
+initrd.img: root_install_net_with_swap.img
 
-initrd.s: initrd.img bin2s
+
+initrd.s: initrd.img root_install_net_with_swap.img bin2s
 	#$(SET_ULIMIT) /u/root/bin/bash ./bin2s initrd.img > /tmp/initrd.s
 	#cp /tmp/initrd.s initrd.s
 	./bin2s initrd.img > initrd.s
