@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e -x
+
+
+nc_run="nc -t -l -p 1234 -q 1"
+
+kd=/srv/nfs/current/knock
+
+
+while true; do
+	$nc_run | (read what )
+
+	op="$(cat "$kd/op")"
+
+
+	case "$op" in ramdisk)
+		(make initrd.o ; echo $? > "$kd/ret" )| $nc_run
+		;;
+	*)
+		(echo "unknown operation $op"; echo 1 > "$kd/ret")| $nc_run
+		;;
+	esac
+
+
+done
