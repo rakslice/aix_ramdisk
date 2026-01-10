@@ -1,0 +1,32 @@
+#!/bin/sh
+set -e
+
+# show the swap and root/net image sizes in blocks in patchdeck format
+#nswap:25:2:     # 100 kB
+#swplo:695:4:    # 1340 kB + 1440kB
+
+
+sizeof() {
+	ls -l "$1" | awk '{print $5}'
+}
+
+go() {
+	filename="$1"
+	size=`sizeof "$1"`
+
+	[ `mod $size 4096` -eq 0 ]
+	div $size 4096
+}
+
+div() {
+	echo "$1 / $2" | bc 
+}
+mod() {
+	echo "$1 % $2" | bc 
+}
+
+
+echo nswap:`go swap_25_zeroed`:2:
+echo swplo:`go root_install_net.img`:4:
+
+
