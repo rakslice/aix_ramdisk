@@ -164,7 +164,8 @@ void wrapped_rdioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc 
 void
 rdinit(dev_t devno) {
     printf("rd: netbsd 1.1 ramdisk driver, github.com/rakslice/aix_ramdisk\n");
-	printf("rd: This product includes software developed by	Gordon W. Ross and Leo Weppelman. See LICENSE.");
+	printf("rd: This product includes software developed by	Gordon W. Ross and\n");
+	printf("rd: Leo Weppelman. See LICENSE.\n");
 	printf("rd: major %d minor %d\n", major(devno), minor(devno));
     rdcd.cd_devs = (void **)kmem_alloc(kernel_map, sizeof(void *) * NUM_POSSIBLE_RD);
     rdcd.cd_ndevs = NUM_POSSIBLE_RD;
