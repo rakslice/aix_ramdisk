@@ -2,7 +2,7 @@
 
 A ramdisk driver for AIX PS/2 1.3. Ported from NetBSD 1.1.
 
-This driver is experimental; it has had LIMITED TESTING. Known to works with the metaware compiler. See licenses in the source files.
+This driver is experimental; it has had LIMITED TESTING. Known to work with the metaware compiler. See licenses in the source files.
 
 To build and install the driver use:
 ```
