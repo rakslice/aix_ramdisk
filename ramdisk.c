@@ -132,7 +132,7 @@ struct rd_softc hardcoded_rd_softc[NUM_POSSIBLE_RD];
 #include <sys/conf.h>
 #include <sys/i386/ppa.h>
 
-struct iobuf rdbuf[NUM_POSSIBLE_RD];
+struct iobuf rdiobuf;
 
 int rdanotherinit() {
     printf("rd: this is in rdanotherinit(), the inner rd init hooked up with DEV_INSTALL");
@@ -176,13 +176,16 @@ rdinit(dev_t devno) {
 
         rd_attach(NULL, (struct device *)RD_SOFTC_HC(i), NULL);
 
-        /* See example at AIX PS/2 and System/370 Technical Reference Mar 1991 p. C.4.1.1 - 1 */
-        DEV_INSTALL(major(devno), rdanotherinit, /*reset*/ nulldev, &rdopen, rdclose, /*intr*/ nulldev, ISNOTATTY | DV_AUTOCONF);
-        rdbuf[i].ib_dev = devno;
-        BDEV_INSTALL(major(devno), (int(*)())rdstrategy, rddump, &rdbuf[i]);
-        CDEV_INSTALL(major(devno), rdread, rdwrite, (int(*)())wrapped_rdioctl, /*select*/ nulldev, notty);
 
     }
+
+	/* See example at AIX PS/2 and System/370 Technical Reference Mar 1991 p. C.4.1.1 - 1 */
+	DEV_INSTALL(major(devno), rdanotherinit, /*reset*/ nulldev, &rdopen, rdclose, /*intr*/ nulldev, ISNOTATTY | DV_AUTOCONF);
+	rdiobuf.ib_dev = devno;
+	BDEV_INSTALL(major(devno), (int(*)())rdstrategy, rddump, &rdiobuf);
+	CDEV_INSTALL(major(devno), rdread, rdwrite, (int(*)())wrapped_rdioctl, /*select*/ nulldev, notty);
+
+
 }
 #endif
 
