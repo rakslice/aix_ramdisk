@@ -324,12 +324,19 @@ int rdclose(dev, flag, fmt, proc)
 	return 0;
 }
 
+#ifdef _AIX
+struct buf rdbuf;
+#define DEFAULT_PHYSIO_BUF (&rdbuf)
+#else
+#define DEFAULT_PHYSIO_BUF (NULL)
+#endif
+
 int
 rdread(dev, uio)
 	dev_t		dev;
 	struct uio	*uio;
 {
-	return (physio(rdstrategy, NULL, dev, B_READ, minphys, uio));
+	return (physio(rdstrategy, DEFAULT_PHYSIO_BUF, dev, B_READ, minphys, uio));
 }
 
 int
@@ -337,7 +344,7 @@ rdwrite(dev, uio)
 	dev_t		dev;
 	struct uio	*uio;
 {
-	return (physio(rdstrategy, NULL, dev, B_WRITE, minphys, uio));
+	return (physio(rdstrategy, DEFAULT_PHYSIO_BUF, dev, B_WRITE, minphys, uio));
 }
 
 /*
