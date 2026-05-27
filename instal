@@ -80,7 +80,7 @@ rd0:
 	name = rdisk
 	driver = rd
 	minor = b0
-	dtype = disk
+	dtype = custdisk
 	noddi = true
 	noduplicate = false
 * Ramdisk
@@ -98,7 +98,7 @@ rrd0:
 	name = rdisk
 	driver = rd
 	minor = c0
-	dtype = disk
+	dtype = custdisk
 	noddi = true
 	noduplicate = false
 * Ramdisk
