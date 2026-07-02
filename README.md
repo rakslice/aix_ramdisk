@@ -7,7 +7,7 @@ This driver is experimental; it has had LIMITED TESTING. Known to work with the 
 To build and install the driver use:
 ```
 make
-./instal
+make install
 ```
 
 To build the command line utility
