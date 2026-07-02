@@ -48,6 +48,7 @@ initrd.o: initrd.s
 	uname
 	if [ "`uname`" = "Linux" ]; then /usr/bin/i686-w64-mingw32-as -o initrd.o initrd.s && cp initrd.o initrd.save_o ; else $(SET_ULIMIT) as -o initrd.o initrd.s ; fi
 
+../root_net_disk/root_install_net.img:
 
 root_install_net.img: ../root_net_disk/root_install_net.img
 	-rm root_install_net.img
