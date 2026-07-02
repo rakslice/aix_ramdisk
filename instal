@@ -1,4 +1,6 @@
 #!/bin/sh
+set -x
+
 #
 # This script file installs the driver in /etc/master,
 # /etc/system 
